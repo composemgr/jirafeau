@@ -47,8 +47,8 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/config/jirafeau` - Data storage
-- `./rootfs/data/jirafeau` - Data storage
+- `./volumes/config/jirafeau` - Data storage
+- `./volumes/data/jirafeau` - Data storage
 
 ## 🔍 Logging
 
