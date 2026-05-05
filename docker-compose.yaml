@@ -21,8 +21,8 @@ services:
       PUID: ${SERVICE_USER:-1000}
       PGID: ${SERVICE_GROUP:-1000}
     volumes:
-      - ./rootfs/config/jirafeau:/config
-      - ./rootfs/data/jirafeau:/data
+      - ./volumes/config/jirafeau:/config
+      - ./volumes/data/jirafeau:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8106"]
       interval: 30s
