@@ -1,5 +1,6 @@
 # nginx proxy address - http://172.17.0.1:8106
 
+name: jirafeau
 x-logging: &default-logging
   driver: json-file
   options:
@@ -8,27 +9,30 @@ x-logging: &default-logging
 
 services:
   jirafeau:
-    image: jirafeau/jirafeau:latest
+    image: jgeusebroek/jirafeau:latest
+    pull_policy: always
     container_name: jirafeau-app
-    restart: unless-stopped
+    restart: always
     logging: *default-logging
     networks:
       - jirafeau
     ports:
-      - "8106:8106"
+      - "172.17.0.1:8106:80"
     environment:
       TZ: ${TZ:-America/New_York}
       PUID: ${SERVICE_USER:-1000}
       PGID: ${SERVICE_GROUP:-1000}
+      ADMIN_PASSWORD: ${APP_ADMIN_PASS:-changeme_admin_password}
     volumes:
       - ./volumes/config/jirafeau:/config
       - ./volumes/data/jirafeau:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8106"]
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       timeout: 10s
       retries: 3
 
 networks:
   jirafeau:
+    name: jirafeau
     external: false
