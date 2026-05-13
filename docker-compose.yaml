@@ -22,9 +22,8 @@ services:
       - "172.17.0.1:8106:80"
     environment:
       TZ: ${TZ:-America/New_York}
-      PUID: ${SERVICE_USER:-1000}
-      PGID: ${SERVICE_GROUP:-1000}
-      ADMIN_PASSWORD: ${APP_ADMIN_PASS:-changeme_admin_password}
+      UID: ${SERVICE_USER:-1000}
+      GID: ${SERVICE_GROUP:-1000}
       CONTAINER_NAME: jirafeau-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     volumes:
