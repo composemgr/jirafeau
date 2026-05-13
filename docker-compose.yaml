@@ -16,6 +16,8 @@ services:
     logging: *default-logging
     networks:
       - jirafeau
+      - proxy
+      - cloudflare
     ports:
       - "172.17.0.1:8106:80"
     environment:
@@ -23,6 +25,8 @@ services:
       PUID: ${SERVICE_USER:-1000}
       PGID: ${SERVICE_GROUP:-1000}
       ADMIN_PASSWORD: ${APP_ADMIN_PASS:-changeme_admin_password}
+      CONTAINER_NAME: jirafeau-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     volumes:
       - ./volumes/config/jirafeau:/config
       - ./volumes/data/jirafeau:/data
@@ -31,8 +35,28 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://jirafeau-app:80'
+      - 'cloudflare.hostname=jirafeau.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.jirafeau-app.entrypoints=http'
+      - 'traefik.http.routers.jirafeau-app-secure.tls=true'
+      - 'traefik.http.routers.jirafeau-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.jirafeau-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.jirafeau-app.middlewares=jirafeau-app-https-redirect'
+      - 'traefik.http.routers.jirafeau-app-secure.entrypoints=https'
+      - 'traefik.http.routers.jirafeau-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.jirafeau-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.jirafeau-app-secure.service=jirafeau-app'
+      - 'traefik.http.services.jirafeau-app.loadbalancer.server.port=80'
 
 networks:
   jirafeau:
     name: jirafeau
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
